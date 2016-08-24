@@ -1,0 +1,12 @@
+{
+  "name": "vefa-export-loader",
+  "description": "Parse given file, its path, and alter its output",
+  "version": "1.2.0",
+  "author": "Cobey Potter <cobey@wellfire.co> (http://wellfire.co)",
+  "license": "MIT",
+  "repository": {},
+  "dependencies": {
+    "loader-utils": "0.2.x"
+  },
+  "main": "index.js"
+}

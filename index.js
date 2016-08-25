@@ -1,38 +1,29 @@
 // TODO: create option to keep templates in file stream
-
-var loader_utils = require('loader-utils');
+var utils = require('loader-utils');
 
 module.exports = function(source){
     this.cacheable && this.cacheable();
 
-    // get the options contained in the query
-    var query = loader_utils.parseQuery(this.query);
-    
-    // get the extra options not contained in the query
-    var opts = this.options.exportTemplate;
-    
-    // determine if we are overriding and just using the general output functionality
-    var override = query.override || query.name || false;
-    
+    // get config
+    var config = utils.getLoaderConfig(this, "vefaExport");
+
     // get the specific context involved, defaulting to Webpack's declared context
     var context = {
-        context: query.context || opts.context || this.options.context,
+        context: config.context || this.options.context,
         content: source
     };
-    
-    // define a specific extension either through the query or through the options
-    // if no extension given, default to the one sent aong
-    var extension = query.extension || opts.extension || "[ext]";
-    
-    // create the general basic filepath
-    var default_path = "[path][name]." + extension;
-    var file_path = default_path;
 
-    if (override) {
+    // create the general basic filepath
+    // if no extension given, default to the one sent along
+    var default_path = "[path][name]." + (config.extension || "[ext]");
+    var file_path = default_path;
+    
+    // determine if we are overriding and just using the general output functionality
+    if (config.override_path) {
         // we just want to go with the general file path ascribed above.
         // or have a specific/simple new file path
-        if (override.length > 1) {
-            file_path = override;
+        if (config.override_path.length > 1) {
+            file_path = config.override_path;
         }
     }
 
@@ -40,7 +31,7 @@ module.exports = function(source){
         // processing parts
         var req_parts, folder, file, process_path = "";
         // break up the file path into the parts that we need
-        req_parts = loader_utils.interpolateName(
+        req_parts = utils.interpolateName(
             this,
             "[folder]!![path]!![name]",
             context
@@ -51,64 +42,60 @@ module.exports = function(source){
         process_path = req_parts[1];
         process_path_parts = process_path.split("/");
 
-        // path to change files/folders to, if null, lets not change the file_path
-        var export_path = query.export_to || opts.export_to;
+
         // check if the export path defines variables to be interpolated
         // if it does, we don't need to worry about save_paths... ?
-        if (export_path && export_path.indexOf("[") > -1) {
-            file_path = export_path;
+        if (config.export_path && config.export_path.indexOf("[") > -1) {
+            file_path = config.export_path;
         } 
 
-        // files/folders to keep in their original pathing
-        var save_paths = query.keep_as || opts.keep_as;
-        // these are paths that we don't want to change their directories
-        if (save_paths) {
-            var save_paths_arr = save_paths.split("|");
+        // // files/folders to keep in their original pathing
+        // var save_paths = config.keep_as;
+        // // these are paths that we don't want to change their directories
+        // if (save_paths) {
+        //     var save_paths_arr = save_paths.split("|");
           
-            if (save_paths_arr.indexOf(folder) > -1) {
-                file_path = default_path;
-            }
-        } 
+        //     if (save_paths_arr.indexOf(folder) > -1) {
+        //         file_path = default_path;
+        //     }
+        // } 
 
-
-        // don't emit these directories
-        var no_emit = query.no_emit || opts.no_emit;
-        // or emit only these directories
-        var only_emit = query.only_emit || opts.only_emit;
+        // // or emit only these directories
+        // var only_emit = config.only_emit;
         
         // remove all directories except for these
-        if (only_emit) {
-            var emit_folders = only_emit.split("|");
-
+        if (config.emit) {
             // check for a parent/base folder
-            parts_check = emit_folders.indexOf(process_path_parts[0]);
+            parts_check = config.emit.indexOf(process_path_parts[0]);
             // check for a full path
-            path_check = emit_folders.indexOf(process_path);
+            path_check = config.emit.indexOf(process_path);
+            // check for full path plus name
+            file_check = config.emit.indexOf(`${process_path}${file}`);
             
-            if ( parts_check < 0 && path_check < 0) {
+            if ( parts_check < 0 && path_check < 0 && file_check < 0) {
                 file_path = "";
             } 
         }
+        
         // remove certain folders from being exported out
-        else if (no_emit) {
-            var no_emit_folders = no_emit.split("|");
-
+        if (config.suppress) {
             // check for a parent/base folder
-            if (no_emit_folders.indexOf(process_path_parts[0]) >= 0) {
-                file_path = "";
-            }
-
+            parts_check = config.suppress.indexOf(process_path_parts[0]);
             // check for a full path
-            if (no_emit_folders.indexOf(process_path) >= 0) {
+            path_check = config.suppress.indexOf(process_path);
+            // check for full path plus name
+            file_check = config.suppress.indexOf(`${process_path}${file}`);
+            
+            console.log(process_path);
+
+            if ( parts_check >= 0 || path_check >= 0 || file_check >= 0) {
                 file_path = "";
             }
-
         }
 
         // lets make a certain page the homepage if we can
-        var make_home = query.homepage || opts.homepage;
-        if (make_home) {
-            if (make_home == [process_path, file].join("") ) {
+        if (config.homepage) {
+            if (config.homepage == [process_path, file].join("") ) {
                 file_path = "index.html";
             }
         }
@@ -116,7 +103,7 @@ module.exports = function(source){
 
 
     // lets sub out all the placeholders
-    var file = loader_utils.interpolateName(
+    var file = utils.interpolateName(
         this,
         file_path,
         context

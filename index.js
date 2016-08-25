@@ -85,8 +85,6 @@ module.exports = function(source){
             path_check = config.suppress.indexOf(process_path);
             // check for full path plus name
             file_check = config.suppress.indexOf(`${process_path}${file}`);
-            
-            console.log(process_path);
 
             if ( parts_check >= 0 || path_check >= 0 || file_check >= 0) {
                 file_path = "";

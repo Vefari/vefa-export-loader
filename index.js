@@ -6,6 +6,10 @@ module.exports = function(source){
 
     // get config
     var config = utils.getLoaderConfig(this, "vefaExport");
+    
+    if (config.use) {
+        config = config[config.use];
+    }
 
     // get the specific context involved, defaulting to Webpack's declared context
     var context = {
@@ -29,16 +33,17 @@ module.exports = function(source){
 
     else {
         // processing parts
-        var req_parts, folder, file, process_path = "";
+        var req_parts, folder, file, file_ext, process_path = "";
         // break up the file path into the parts that we need
         req_parts = utils.interpolateName(
             this,
-            "[folder]!![path]!![name]",
+            "[folder]!![path]!![name]!![ext]",
             context
         );
         req_parts = req_parts.split('!!');
         folder = req_parts[0];
         file = req_parts[2];
+        file_ext = req_parts[3];
         process_path = req_parts[1];
         process_path_parts = process_path.split("/");
 
@@ -70,9 +75,10 @@ module.exports = function(source){
             // check for a full path
             path_check = config.emit.indexOf(process_path);
             // check for full path plus name
-            file_check = config.emit.indexOf(`${process_path}${file}`);
+            deep_file_check = config.emit.indexOf(`${process_path}${file}`);
+            file_check = config.emit.indexOf(`${file}.${file_ext}`);
             
-            if ( parts_check < 0 && path_check < 0 && file_check < 0) {
+            if ( parts_check < 0 && path_check < 0 && deep_file_check < 0 && file_check < 0) {
                 file_path = "";
             } 
         }
@@ -84,9 +90,9 @@ module.exports = function(source){
             // check for a full path
             path_check = config.suppress.indexOf(process_path);
             // check for full path plus name
-            file_check = config.suppress.indexOf(`${process_path}${file}`);
+            deep_file_check = config.suppress.indexOf(`${process_path}${file}`);
 
-            if ( parts_check >= 0 || path_check >= 0 || file_check >= 0) {
+            if ( parts_check >= 0 || path_check >= 0 || deep_file_check >= 0) {
                 file_path = "";
             }
         }

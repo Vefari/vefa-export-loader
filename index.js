@@ -113,6 +113,15 @@ module.exports = function(source){
         context
     );
 
+    
+    if (config.flatten_one_level) {
+        var file_parts = file.split("/");
+        if (file.indexOf(config.flatten_one_level) >= 0) {
+            file_parts.shift();
+            file = file_parts.join("/")
+        }
+    }
+
     // output the file and remove it from the stream as we don't need it anymore.
     if (file_path !== "") {
         this.emitFile(file, source);

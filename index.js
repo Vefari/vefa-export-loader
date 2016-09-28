@@ -1,19 +1,16 @@
 // TODO: create option to keep templates in file stream
-var utils = require('loader-utils');
+let utils = require('loader-utils');
 
 module.exports = function(source){
     this.cacheable && this.cacheable();
 
     // get config
-    var config = utils.getLoaderConfig(this, "vefaExport");
+    let config = utils.getLoaderConfig(this, "vefaExport");
+    config = utils.getLoaderConfig(this, config.use);
     
-    if (config.use) {
-        config = config[config.use];
-    }
-
     // get the specific context involved, defaulting to Webpack's declared context
-    var context = {
-        context: config.context || this.options.context,
+    let context = {
+        context: config.context || utils.getLoaderConfig(this, "context"),
         content: source
     };
 
@@ -47,11 +44,10 @@ module.exports = function(source){
         process_path = req_parts[1];
         process_path_parts = process_path.split("/");
 
-
         // check if the export path defines variables to be interpolated
         // if it does, we don't need to worry about save_paths... ?
-        if (config.export_path && config.export_path.indexOf("[") > -1) {
-            file_path = config.export_path;
+        if (config.path && config.path.indexOf("[") > -1) {
+            file_path = config.path;
         } 
 
         // // files/folders to keep in their original pathing

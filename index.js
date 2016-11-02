@@ -11,13 +11,13 @@ module.exports = function(source){
     // get the specific context involved, defaulting to Webpack's declared context
     let context = {
         context: config.context || utils.getLoaderConfig(this, "context"),
-        content: source
+        content: source.content ? source.content : source
     };
 
     // create the general basic filepath
     // if no extension given, default to the one sent along
-    var default_path = "[path][name]." + (config.extension || "[ext]");
-    var file_path = default_path;
+    let default_path = "[path][name]." + (config.extension || "[ext]");
+    let file_path = default_path;
     
     // determine if we are overriding and just using the general output functionality
     if (config.override_path) {
@@ -27,7 +27,20 @@ module.exports = function(source){
             file_path = config.override_path;
         }
     }
+    else if (source.content) {
+        if ( config.clean_urls) {
+            file_path = `${source.resourcePath}/index.html`;
+        }
+        else {
+            file_path = `${source.resourcePath}.html`;    
+        }
 
+        if (config.homepage) {
+            if (config.homepage == source.resourcePath ) {
+                file_path = "index.html";
+            }
+        }
+    }
     else {
         // processing parts
         var req_parts, folder, file, file_ext, process_path = "";
@@ -119,8 +132,8 @@ module.exports = function(source){
     }
 
     // output the file and remove it from the stream as we don't need it anymore.
-    if (file_path !== "") {
-        this.emitFile(file, source);
+    if (file_path !== "" && !config.process_only) {
+            this.emitFile(file, (source.content ? source.content : source));
     }
 
     return "";

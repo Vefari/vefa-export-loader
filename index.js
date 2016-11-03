@@ -1,4 +1,4 @@
-// TODO: create option to keep templates in file stream
+'use strict'
 let utils = require('loader-utils');
 
 module.exports = function(source){

@@ -56,8 +56,6 @@ module.exports = function(source){
             req_parts = req_parts.split('!!');
             [folder, process_path, file, file_ext] = req_parts;
             
-            console.log(process_path);
-            
             process_path_parts = process_path.split("/");
 
             // check if the export path defines variables to be interpolated

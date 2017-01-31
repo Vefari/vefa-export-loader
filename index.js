@@ -83,16 +83,20 @@ module.exports = function(source){
 
             // remove certain folders from being exported out
             if (config.suppress) {
-                // check for a parent/base folder
+                                // check for a parent/base folder
                 let parts_check = config.suppress.indexOf(process_path_parts[0]);
                 
                 // check for a full path
                 let path_check = config.suppress.indexOf(process_path);
                 
+                // shallow file check
+                let shallow_file_check = config.suppress.indexOf(`${file}.${file_ext}`);
+
                 // check for full path plus name
                 let deep_file_check = config.suppress.indexOf(`${process_path}${file}`);
 
-                if ( parts_check >= 0 || path_check >= 0 || deep_file_check >= 0) {
+
+                if ( parts_check >= 0 || path_check >= 0 || shallow_file_check >= 0 || deep_file_check >= 0) {
                     file_path = "";
                 }
             }

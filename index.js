@@ -5,8 +5,8 @@ module.exports = function(source){
     this.cacheable && this.cacheable();
 
     // get config
-    let config = utils.getLoaderConfig(this, "vefaExport");
-    config = utils.getLoaderConfig(this, config.use);
+    let config = utils.getLoaderConfig(this);
+
     
     // get the specific context involved, defaulting to Webpack's declared context
     let context = {

@@ -26,10 +26,17 @@ module.exports = function(source){
         if (source.content) {
             // if clean_urls, make the file_path a directory based system
             if ( config.clean_urls) {
-                file_path = `${source.resourcePath}/index.html`;
+                if (source.data.slug) {
+                    file_path = `${source.resourcePath}/index.html`
+                }
+                else {
+                    // filename template gets rewritten somewhere, 
+                    // so, force it here
+                    file_path = '[path][name]/index.html'
+                }
             }
             else {
-                file_path = `${source.resourcePath}.html`;    
+                file_path = `${source.resourcePath}.html`
             }
 
             // if we've set up a specific homepage, 

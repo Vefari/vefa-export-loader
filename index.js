@@ -26,26 +26,21 @@ module.exports = function(source){
         if (source.content) {
             // if clean_urls, make the file_path a directory based system
             if ( config.clean_urls) {
+                file_path = '[path][name]/index.html'
+
                 if (source.data.slug) {
                     file_path = `${source.resourcePath}/index.html`
-                }
-                else {
-                    // filename template gets rewritten somewhere, 
-                    // so, force it here
-                    file_path = '[path][name]/index.html'
                 }
             }
             else {
                 file_path = `${source.resourcePath}.html`
             }
 
-            // if we've set up a specific homepage, 
-            // remove pathing and just set to a base index file
-            if (config.homepage) {
-                if (config.homepage == source.resourcePath ) {
-                    file_path = "index.html";
-                }
-            }
+            // set up some specific pages, 
+            // remove pathing and force it
+            file_path = (config.homepage == source.resourcePath) ? "index.html" : file_path
+            file_path = (config['404'] == source.resourcePath) ? "404.html" : file_path
+            file_path = (config['500'] == source.resourcePath) ? "500.html" : file_path
         }
 
         // export non-markdown-based files

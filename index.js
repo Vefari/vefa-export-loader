@@ -104,11 +104,19 @@ module.exports = function(source){
             }
 
             // lets make a certain page the homepage if we can
-            if (config.homepage) {
-                if (config.homepage == [process_path, file].join("") ) {
-                    file_path = "index.html";
-                }
-            }
+            file_path = (config.homepage && config.homepage == [process_path, file].join(""))
+                ? 'index.html'
+                : file_path
+
+            // rename certain files to a different file_path
+            const renamer = config.rename
+            file_path = (renamer)
+                ? Object.keys(renamer).map( (key) => {
+                    return (renamer[key].includes([process_path, file].join("")))
+                        ? key
+                        : file_path
+                })[0]
+                : file_path
 
         }
 

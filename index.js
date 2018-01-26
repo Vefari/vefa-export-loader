@@ -110,14 +110,15 @@ module.exports = function(source){
 
             // rename certain files to a different file_path
             const renamer = config.rename
-            file_path = (renamer)
-                ? Object.keys(renamer).map( (key) => {
-                    return (renamer[key].includes([process_path, file].join("")))
-                        ? key
-                        : file_path
-                })[0]
-                : file_path
+            let renamePosition = 0
 
+            file_path = (renamer)
+                ? Object.keys(renamer).map( (key, index) => {
+                    return (renamer[key].includes([process_path, file].join("")))
+                        ? (renamePosition = index, key)
+                        : file_path
+                })[renamePosition]
+                : file_path
         }
 
         // sub out all the placeholders

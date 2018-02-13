@@ -36,8 +36,13 @@ module.exports = function(source){
                 file_path = `${source.resourcePath}.html`
             }
 
-            // set up some specific pages, 
+             // set up if django based,
+            // set up some specific pages,
             // remove pathing and force it
+            const isDjango = (config.django && source.data && source.data.django)
+            const isDjangoSuppressed = (source.data && (source.data.django === false || source.data.django == "suppress"))
+            file_path = isDjango ? `${source.data.django}.html` : file_path
+            file_path = isDjangoSuppressed ? "" : file_path
             file_path = (config.homepage == source.resourcePath) ? "index.html" : file_path
             file_path = (config['404'] == source.resourcePath) ? "404.html" : file_path
             file_path = (config['500'] == source.resourcePath) ? "500.html" : file_path
